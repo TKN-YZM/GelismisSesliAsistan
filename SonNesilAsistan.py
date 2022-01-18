@@ -17,7 +17,7 @@ class Asistan():
     def seslendirme(self,ses):
         tts=gTTS(text=ses,lang="tr")
         rand = random.randint(1,100)
-        dosya="C:/Users/apoba/Desktop/PythonProje/{}.mp3".format(str(rand))
+        dosya="{}.mp3".format(str(rand))
         time.sleep(1)
         tts.save(dosya)
         time.sleep(1)
