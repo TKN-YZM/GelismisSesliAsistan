@@ -63,7 +63,7 @@ class Asistan():
             time.sleep(2)
 
 
-        elif "müzik aç" in veri or "video aç" in veri:
+        elif "müzik aç" in veri or "video aç" in veri or "youtube aç" in veri:
             self.seslendirme("Ne açmamı istersiniz? ")
             isim=self.mikrofon()
             url="https://www.youtube.com/results?search_query={}".format(isim)
