@@ -1,116 +1,119 @@
 import random
 import time
-import webbrowser
-import speech_recognition as sr
 from playsound import playsound
+import speech_recognition as sr
 from gtts import gTTS
+import pyaudio
+import os
 from selenium import webdriver
-from bs4 import  BeautifulSoup
-import requests
+
+
 
 r=sr.Recognizer()
 
-class Asistan():
+class SesliAsistan():
+
+
     def seslendirme(self,metin):
-        tts=gTTS(text=metin,lang="tr")
-        dosya="ses"+str(random.randint(0,23132321321))+".mp3"
-        tts.save(dosya)
+        xtts=gTTS(text=metin,lang="tr")
+        dosya="dosya"+str(random.randint(0,1242312412312))+".mp3"
+        xtts.save(dosya)
         playsound(dosya)
 
-    def mikrofon(self):
-        with sr.Microphone() as source:
-            print("Sizi dinliyoruz")
-            listen=r.listen(source)
+    def ses_kayit(self):
+        with sr.Microphone() as kaynak:
+            print("Sizi dinliyoruz...")
+            listen=r.listen(kaynak)
             voice=" "
+
             try:
                 voice=r.recognize_google(listen,language="tr-TR")
             except sr.UnknownValueError:
-                self.seslendirme("Ne dediğinizi anlayamadım...")
+                self.seslendirme("Ne söylediğinizi anlayamadım.Lutfen tekrar ediniz")
+
             return voice
 
-    def karsilik(self,veri):
-        if "selam" in veri :
-            self.seslendirme("Selamlar Efendim")
 
-        elif "merhaba" in veri or "naber" in veri:
-            self.seslendirme("Merhaba efendim")
+    def ses_karsilik(self,gelen_ses):
+        if "selam" in gelen_ses:
+            self.seslendirme("Size de selamlar")
+        elif "merhaba" in gelen_ses:
+            self.seslendirme("Size de merhabalar")
 
-        elif "film aç" in veri :
-            self.seslendirme("Hangi filmi açmamı istersiniz?")
-            film_ismi=self.mikrofon()
+        elif "video aç" in gelen_ses or "müzik aç" in gelen_ses or "youtube aç" in gelen_ses:
+            self.seslendirme("Ne açmamı istersiniz?")
+            veri=self.ses_kayit()
+            self.seslendirme("{} açılıyor...".format(veri))
             time.sleep(1)
-            self.browser=webdriver.Chrome()
-            self.browser.get("https://www.google.com/search?q={}".format(film_ismi))
-            self.seslendirme("{} filmi açılıyor...".format(film_ismi))
-            veri=self.browser.find_element_by_xpath("//*[@id='rso']/div[2]/div/div[1]/div/a/h3")
-            veri.click()
+            url="https://www.youtube.com/results?search_query={}".format(veri)
+            tarayici=webdriver.Chrome()
+            tarayici.get(url)
+            buton=tarayici.find_element_by_xpath("//*[@id='video-title']/yt-formatted-string").click()
 
-        elif "film türü" in veri or "film önerisi" in veri or "öneri film" in veri:
-            self.seslendirme("hangi tür film istersin?")
-            film = self.mikrofon()
+        elif "google aç" in gelen_ses or "arama yap" in gelen_ses:
+            self.seslendirme("Ne aramamı istersiniz")
+            veri=self.ses_kayit()
+            self.seslendirme("{} için bulduklarım bunlar".format(veri))
+            url="https://www.google.com/search?q={}".format(veri)
+            tarayici=webdriver.Chrome()
+            tarayici.get(url)
+            buton=tarayici.find_element_by_xpath("//*[@id='rso']/div[1]/div/div/div/div/div/div[1]/a/h3").click()
 
-            if "bilim kurgu" in film:
-                film = 'bilim-kurgu'
-            elif "aile filmleri" in film or "aile" in film:
-                film = 'aile-filmleri'
-            elif "kült filmler" in film or "kült" in film:
-                film = 'kult-filmler-izle'
-            elif "komedi" in film:
-                film = "hd-komedi-filmleri"
+        elif "film aç" in gelen_ses:
+            self.seslendirme("Hangi filmi açmamı istersiniz")
+            veri=self.ses_kayit()
+            self.seslendirme("{} filmini açıyorum....".format(veri))
 
-            webbrowser.get().open("https://www.filmmodu2.com/kategori/{}".format(film))
-            self.seslendirme("{} tür filmler için bulduklarım bunlar".format(film))
+            url="https://www.google.com/search?q={}+izle".format(veri)
+
+            tarayici=webdriver.Chrome()
+            tarayici.get(url)
+
+            buton=tarayici.find_element_by_xpath("//*[@id='rso']/div[2]/div/div[1]/div/a/h3")
+            buton.click()
+
+
+
+
+        elif "film önerisi yap" in gelen_ses:
+            self.seslendirme("hangi tür film istersinz")
+            veri=self.ses_kayit()
+            self.seslendirme("{} türü için bulduğum filmler şunlar...".format(veri))
+            url="https://www.filmmodu2.com/kategori/{}".format(veri)
+
+            tarayici=webdriver.Chrome()
+            tarayici.get(url)
+
+
+            self.seslendirme("Eğer kararsızsanız size film önerisinde bulunmak istiyorum")
+            cevap=self.ses_kayit()
+            print(cevap)
             time.sleep(2)
 
+            if cevap=="Evet":
+                self.seslendirme("Filminizi hemen getiriyorum....")
+                rastgele_sayi=random.randint(1,24)
+                buton=tarayici.find_element_by_xpath("/html/body/main/div[2]/div[{}]/div/a".format(rastgele_sayi))
+                buton.click()
+                veri1=buton.find_element_by_xpath("/html/body/div[4]/div[2]/div[1]/div[2]/div/div/p[1]/text()")
+                print(veri1)
 
-        elif "müzik aç" in veri or "video aç" in veri or "youtube aç" in veri:
-            self.seslendirme("Ne açmamı istersiniz? ")
-            isim=self.mikrofon()
-            url="https://www.youtube.com/results?search_query={}".format(isim)
-            self.seslendirme("{} açılıyor...".format(isim))
-            browser2=webdriver.Chrome()
-            browser2.get(url)
-            browser2.find_element_by_xpath("//*[@id='video-title']/yt-formatted-string").click()
-
-
-        elif "hava durumu tahmini" in veri or "hava durumu" in veri or "yarın hava ne olacak" in veri:
-            self.seslendirme("Hangi sehrin hava durumunu istersiniz?")
-            sehir_ismi=self.mikrofon()
-
-            url = "https://www.ntvhava.com/{}-hava-durumu".format(sehir_ismi)
-            response = requests.get(url)
-            html_icerigi = response.content
-            soup = BeautifulSoup(html_icerigi, "html.parser")
-            gunduz = soup.find_all("div", {"class", "daily-report-tab-content-pane-item-box-bottom-degree-big"})
-            gece = soup.find_all("div", {"class", "daily-report-tab-content-pane-item-box-bottom-degree-small"})
-            hava = soup.find_all("div", {"class", "daily-report-tab-content-pane-item-text"})
-
-            gunduz_sicakliklari = []
-            gece_sicakliklari = []
-            hava_olayi = []
-
-            for y in gunduz:
-                gunduz_sicakliklari.append(y.text)
-
-            for x in gece:
-                gece_sicakliklari.append(x.text)
-
-            for a in hava:
-                hava_olayi.append(a.text)
-
-            yarin_durum="Yarınki hava tahmini şu şekilde: {} gündüz sıcaklığı: {} gece sıcaklığı {}".format(hava_olayi[0],gunduz_sicakliklari[0],gece_sicakliklari[0])
-
-            self.seslendirme(yarin_durum)
+                self.seslendirme("Keyifli seyirler...")
+            else:
+                self.seslendirme("Keyifli seyirler...")
 
 
-asistan=Asistan()
+
+asistan=SesliAsistan()
+
+
+
 while True:
-    ses=asistan.mikrofon()
+    ses=asistan.ses_kayit()
     if(ses!=" "):
         ses=ses.lower()
         print(ses)
-        asistan.karsilik(ses)
-
+        asistan.ses_karsilik(ses)
 
 
 
