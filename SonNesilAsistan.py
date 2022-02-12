@@ -6,7 +6,8 @@ from gtts import gTTS
 import pyaudio
 import os
 from selenium import webdriver
-
+import requests
+from bs4 import BeautifulSoup
 
 
 r=sr.Recognizer()
@@ -80,11 +81,8 @@ class SesliAsistan():
             veri=self.ses_kayit()
             self.seslendirme("{} türü için bulduğum filmler şunlar...".format(veri))
             url="https://www.filmmodu2.com/kategori/{}".format(veri)
-
             tarayici=webdriver.Chrome()
             tarayici.get(url)
-
-
             self.seslendirme("Eğer kararsızsanız size film önerisinde bulunmak istiyorum")
             cevap=self.ses_kayit()
             print(cevap)
@@ -103,10 +101,39 @@ class SesliAsistan():
                 self.seslendirme("Keyifli seyirler...")
 
 
+        elif "hava durumu tahmini" in gelen_ses or "hava durumu" in gelen_ses:
+            self.seslendirme("hangi şehrin hava durumunu istersiniz")
+            cevap=self.ses_kayit()
+
+            url = "https://www.ntvhava.com/{}-hava-durumu".format(cevap)
+            request = requests.get(url)
+            html_icerigi = request.content
+            soup = BeautifulSoup(html_icerigi, "html.parser")
+            gunduz_sicakliklari = soup.find_all("div",
+                                          {"class": "daily-report-tab-content-pane-item-box-bottom-degree-big"})
+            gece_sicakliklari = soup.find_all("div",
+                                              {"class": "daily-report-tab-content-pane-item-box-bottom-degree-small"})
+            hava_durumları = soup.find_all("div", {"class": "daily-report-tab-content-pane-item-text"})
+            gunduz = []
+            gece = []
+            hava = []
+            for x in gunduz_sicakliklari:
+                x = x.text
+                gunduz.append(x)
+            for y in gece_sicakliklari:
+                y = y.text
+                gece.append(y)
+            for z in hava_durumları:
+                z = z.text
+                hava.append(z)
+            birleştirme="{} için yarınki hava raporları şöyle {} gündüz sıcaklığı {} gece sıcaklığı {}".format(cevap,hava[0],gunduz[0],gece[0])
+
+            self.seslendirme(birleştirme)
+
+
+
 
 asistan=SesliAsistan()
-
-
 
 while True:
     ses=asistan.ses_kayit()
@@ -114,6 +141,3 @@ while True:
         ses=ses.lower()
         print(ses)
         asistan.ses_karsilik(ses)
-
-
-
