@@ -126,7 +126,7 @@ class SesliAsistan():
             for z in hava_durumları:
                 z = z.text
                 hava.append(z)
-            birleştirme="{} için yarınki hava raporları şöyle {} gündüz sıcaklığı {} gece sıcaklığı {}".format(cevap,hava[0],gunduz[0],gece[0])
+            birleştirme="{} için yarınki hava raporları şöyle {} gündüz sıcaklığı {} gece sıcaklığı {}".format(cevap,hava[1],gunduz[1],gece[1])
 
             self.seslendirme(birleştirme)
 
