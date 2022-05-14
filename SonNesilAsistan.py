@@ -9,6 +9,7 @@ from selenium import webdriver
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import cv2
 
 r=sr.Recognizer()
 
@@ -19,7 +20,7 @@ class SesliAsistan():
         dosya="dosya"+str(random.randint(0,1242312412312))+".mp3"
         xtts.save(dosya)
         playsound(dosya)
-        os.remove("C:/Users/apoba/Desktop/PythonProje/dosya")
+        #os.remove("C:/Users/apoba/Desktop/PythonProje/dosya")
 
     def ses_kayit(self):
         with sr.Microphone() as kaynak:
@@ -90,9 +91,7 @@ class SesliAsistan():
                 except:
                     self.seslendirme("internetten kaynaklı bir hata meydana geldi.lütfen internetinizi kontrol ediniz")
 
-
             elif "film önerisi yap" in gelen_ses:
-
                 try:
                     self.seslendirme("hangi tür film istersinz")
                     veri=self.ses_kayit()
@@ -212,6 +211,29 @@ class SesliAsistan():
                 except:
                     self.seslendirme("istediğinz şehre göre bir içerik bulunamadı.lütfen istediğinz şehri veya internetinizi kontrol ediniz")
 
+            elif "fotoğraf çek" in gelen_ses or "fotoğraf" in gelen_ses:
+                self.seslendirme("kameranızı hemen açıyorum...")
+                kamera=cv2.VideoCapture(0)
+                x,resim=kamera.read()
+                cv2.imwrite("denemeresim.jpg",resim)
+                self.seslendirme("gülümseyin çekiyorum...")
+                kamera.release()
+                cv2.destroyAllWindows()
+                time.sleep(2)
+                self.seslendirme("fotoğrafınızı görmek istiyor musunuz")
+                cevap=self.ses_kayit()
+                if(cevap=="Evet"):
+                    resim=cv2.imread("denemeresim.jpg")
+                    cv2.imshow("Deneme Resim",resim)
+                    cv2.waitKey(0)
+                    cv2.destroyAllWindows()
+                else:
+                    pass
+
+            elif "oyun zamanı" in gelen_ses or "oyun aç" in gelen_ses:
+                self.seslendirme("oynunuzu hemen açıyorum.keyifli oyunlar dilerim")
+                os.startfile("uplay://launch/46/0")
+
 
 asistan=SesliAsistan()
 
@@ -228,4 +250,3 @@ while True:
         ses=ses.lower()
         print(ses)
         uyanma_fonksiyonu(ses)
-
