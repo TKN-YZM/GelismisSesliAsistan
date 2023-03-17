@@ -1,4 +1,4 @@
- # Python ile Sesli Asistan Uygulamasu
+ # Python ile Sesli Asistan Uygulaması
   ### Sesli komutlar ile yapabileceğiniz işlemler:
  <ul>
 
